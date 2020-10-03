@@ -2,24 +2,17 @@
 using System.IO;
 using System.Threading;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json.Linq;
 
 namespace Birthday_Discordbot
 {
     public class MysqlClass
     {
-        private static readonly string ConString = GetConString();
+        private static readonly string ConString = JObject.Parse(File.ReadAllText("../../../config.json"))["database"]["connectionString"].ToString();
 
-        private static string GetConString()
-        {
-            const string path = "../../../MySqlServerCon.txt";
-            using StreamReader sr = new StreamReader(path);
-            return sr.ReadLine();
-        }
+        private static MySqlConnection _databaseConnection;
 
-
-        static MySqlConnection _databaseConnection;
-
-        public static MySqlConnection Connection
+        private static MySqlConnection Connection
         {
             get
             {

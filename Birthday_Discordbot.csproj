@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="2.2.0" />
     <PackageReference Include="MySql.Data" Version="8.0.21" />
     <None Remove=".gitignore" />
     <None Remove="README.md" />
