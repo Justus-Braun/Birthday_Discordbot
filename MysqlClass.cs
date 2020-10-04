@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Threading;
 using MySql.Data.MySqlClient;
@@ -59,14 +60,15 @@ namespace Birthday_Discordbot
             return sqlAbfrage;
         }
 
-        private MySqlDataReader GetDataReader(MySqlCommand sqlAbfrage)
+        private static MySqlDataReader GetDataReader(MySqlCommand sqlAbfrage)
         {
             return sqlAbfrage.ExecuteReader();
         }
 
-        public void Test()
+        public void AddDataAndUserToDatabase(string username, string date)
         {
-            CreateCommend("test");
+            var x = CreateCommend($"Insert into Birthday_DiscordBot.user (username, birthday) VALUES (\"{username}\", \"{date}\");");
+            x.ExecuteNonQuery();
         }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.Anssi;
 
 namespace Birthday_Discordbot
 {
@@ -18,6 +21,8 @@ namespace Birthday_Discordbot
         {
             _client = new DiscordSocketClient();
             _client.Log += Log;
+            _client.MessageReceived += MessageReceived;
+
 
             var token = JObject.Parse(await File.ReadAllTextAsync("../../../config.json"))["api"]["token"].ToString();
 
@@ -31,6 +36,32 @@ namespace Birthday_Discordbot
         {
             Console.WriteLine(msg.ToString());
             return Task.CompletedTask;
+        }
+
+        private static async Task MessageReceived(SocketMessage message)
+        {
+            if (message.Author.IsBot)
+            {
+                return;
+            }
+
+            if (message.Content.StartsWith("!"))
+            {
+                if (IsDate(message.Content.Remove(0, 1), out DateTime result))
+                {
+                    MysqlClass mysql = new MysqlClass();
+                    mysql.AddDataAndUserToDatabase("test", $"{result:yyyy-MM-dd}");
+                    await message.Channel.SendMessageAsync($"Fertig");
+                }
+                   
+            }
+        }
+
+
+        private static bool IsDate(string date, out DateTime result)
+        {
+            //YYYY-MM-DD
+            return DateTime.TryParse(date, out result);
         }
     }
 }
