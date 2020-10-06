@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using Discord.WebSocket;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json.Linq;
 
@@ -26,7 +29,7 @@ namespace Birthday_Discordbot
             }
         }
 
-        static MySqlConnection CreateConnection()
+        private static MySqlConnection CreateConnection()
         {
             var db = new MySqlConnection(ConString);
             db.Open();
@@ -65,10 +68,28 @@ namespace Birthday_Discordbot
             return sqlAbfrage.ExecuteReader();
         }
 
-        public void AddDataAndUserToDatabase(string username, string date)
+        public void AddUserToDatabase(string username, string date)
         {
-            var x = CreateCommend($"Insert into Birthday_DiscordBot.user (username, birthday) VALUES (\"{username}\", \"{date}\");");
-            x.ExecuteNonQuery();
+            var mySqlCommand = CreateCommend($"Insert into Birthday_DiscordBot.user (username, birthday) VALUES (\"{username}\", \"{date}\");");
+            mySqlCommand.ExecuteNonQuery();
+        }
+
+        public void AddGuildToDatabase(ulong guild, ulong channel)
+        {
+            var mySqlCommand = CreateCommend($"Insert into Birthday_DiscordBot.guilds (guildID, channelID) VALUES (\"{guild}\", \"{channel}\");");
+            mySqlCommand.ExecuteNonQuery();
+        }
+
+        public ulong[] QueryThroughGuilds(string colummeName)
+        {
+            var mySqlCommend = CreateCommend($"Select {colummeName} from Birthday_DiscordBot.guilds;");
+            return GetDataReader(mySqlCommend).Cast<ulong>().ToArray();
+        }
+
+        public void DeleteGuild(ulong guildId)
+        {
+            var mySqlCommand = CreateCommend($"delete from guilds where guildID = {guildId};");
+            mySqlCommand.ExecuteNonQuery();
         }
     }
 }
