@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Discord.WebSocket;
 
-namespace Birthday_Discordbot
+namespace Birthday_Discordbot.MySql
 {
     public static class MySqlCommends
     {
@@ -27,5 +24,10 @@ namespace Birthday_Discordbot
         public static void AddGuild(ulong guildId, ulong channelId) => Mysql.AddGuildToDatabase(guildId, channelId);
 
         public static void AddUser(string username, string date) => Mysql.AddUserToDatabase(username, date);
+
+        public static ulong[] GetAllGuilds()
+        {
+            return (ulong[])Mysql.QueryThroughGuilds("*");
+        }
     }
 }
