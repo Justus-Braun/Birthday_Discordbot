@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Timers;
+using Birthday_Discordbot.MySql;
 using Discord;
 
-namespace Birthday_Discordbot
+namespace Birthday_Discordbot.Events
 {
     public static class TimerEvents
     {
@@ -12,16 +11,35 @@ namespace Birthday_Discordbot
 
         public static async void Elapsed(object sender, ElapsedEventArgs e)
         {
+            //Check if day passed by
             DateTime currentDay = DateTime.Today;
             if (currentDay == _lastTimeCheck) return;
 
+            //If new data write it to log
             await ClientEvents.Log(new LogMessage(LogSeverity.Info, "Timer", "New Day"));
 
-            var guild = Program.Client.GetGuild(484297678159609856);
-            var channel = guild.GetChannel(761982258562465802) as IMessageChannel;
-            var author = await channel.GetUserAsync(358214265041321984);
+            //Get all guilds from Database
+            var allGuilds = MySqlCommends.GetAllGuilds();
+            foreach (var variable in allGuilds)
+            {
+                var guild = Program.Client.GetGuild(variable);
 
-            await channel.SendMessageAsync(author.Username);
+                if (guild == null) continue;
+                if (!(guild.GetChannel(guild.DefaultChannel.Id) is IMessageChannel channel)) continue;
+                
+                var author = await channel.GetUserAsync(guild.OwnerId);
+
+                try
+                {
+                    await channel.SendMessageAsync(author.Username);
+                }
+                catch (Discord.Net.HttpException ex)
+                {
+                    await ClientEvents.Log(new LogMessage(LogSeverity.Error, guild.Name, ex.Message));
+                }
+            }
+
+            
 
             //new Day
             _lastTimeCheck = DateTime.Today;
