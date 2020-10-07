@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using Birthday_Discordbot.MySql;
 using Discord;
 using Discord.WebSocket;
 
-namespace Birthday_Discordbot
+namespace Birthday_Discordbot.Events
 {
     public static class ClientEvents
     {

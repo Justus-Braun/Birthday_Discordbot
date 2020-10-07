@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Discord.WebSocket;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json.Linq;
 
-namespace Birthday_Discordbot
+namespace Birthday_Discordbot.MySql
 {
     public class MysqlClass
     {
@@ -63,10 +61,7 @@ namespace Birthday_Discordbot
             return sqlAbfrage;
         }
 
-        private static MySqlDataReader GetDataReader(MySqlCommand sqlAbfrage)
-        {
-            return sqlAbfrage.ExecuteReader();
-        }
+        private static MySqlDataReader GetDataReader(MySqlCommand sqlAbfrage) => sqlAbfrage.ExecuteReader();
 
         public void AddUserToDatabase(string username, string date)
         {
@@ -80,10 +75,13 @@ namespace Birthday_Discordbot
             mySqlCommand.ExecuteNonQuery();
         }
 
-        public ulong[] QueryThroughGuilds(string colummeName)
+        public IEnumerable<ulong> QueryThroughGuilds(string colummeName)
         {
             var mySqlCommend = CreateCommend($"Select {colummeName} from Birthday_DiscordBot.guilds;");
-            return GetDataReader(mySqlCommend).Cast<ulong>().ToArray();
+            var reader = GetDataReader(mySqlCommend);
+            var guilds = reader.Cast<ulong>().ToArray();
+            reader.Close();
+            return guilds;
         }
 
         public void DeleteGuild(ulong guildId)
