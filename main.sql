@@ -4,25 +4,26 @@ use Birthday_DiscordBot;
 
 #Create Table Guilds
 create table guilds(
-	ID int primary key auto_increment,
-    guildID int8(0),
-    channelID int8(0) 
+    guildID bigint unsigned primary key,
+    channelID bigint unsigned 
 );
 
 #Create Table user
 create table user(
 	ID int primary key auto_increment,
-    userID int8(0),
+    userID bigint unsigned,
     birthday date,
-    guild int,
-    foreign key (guild) references guilds(ID) on update cascade on delete cascade 
+    guild bigint unsigned,
+    foreign key (guild) references guilds(guildID) on update cascade on delete cascade 
 );
 
 #Query through user table
 select * from user;
-select guildID from guilds;
+select * from guilds;
 
-delete from guilds where guildID = 
+
+
+select * from user left join guilds on user.guild = guilds.ID;
 
 
 #drop database Birthday_DiscordBot;

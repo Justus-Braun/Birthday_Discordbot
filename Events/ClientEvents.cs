@@ -16,7 +16,7 @@ namespace Birthday_Discordbot.Events
                 if (DateTime.TryParse(message.Content.Remove(0, 1), out DateTime result))
                 {
                     //YYYY-MM-DD mysql date
-                    MySqlCommends.AddUser(message.Author.Username, $"{result:yyyy-MM-dd}");
+                    MySqlCommends.AddUser(message.Author.Id, result, ((SocketGuildChannel) message.Channel).Id);
                     await message.Channel.SendMessageAsync($"Fertig");
                 }
                 else

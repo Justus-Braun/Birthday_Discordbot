@@ -26,8 +26,16 @@ namespace Birthday_Discordbot.Events
 
                 if (guild == null) continue;
                 if (!(guild.GetChannel(guild.DefaultChannel.Id) is IMessageChannel channel)) continue;
+
+                var allUserWithBirthday = MySqlCommends.GetAllUsersInGuildByBirthday(guild.Id);
+
+
+
                 
                 var author = await channel.GetUserAsync(guild.OwnerId);
+                
+
+
 
                 try
                 {

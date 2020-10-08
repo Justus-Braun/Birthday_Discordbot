@@ -25,12 +25,12 @@ namespace Birthday_Discordbot
             Client.MessageReceived += ClientEvents.MessageReceived;
             Client.JoinedGuild += ClientEvents.JoinedGuild;
 
-            MySqlCommends.DeleteNonUseGuilds(Client);
-
             var token = JObject.Parse(await File.ReadAllTextAsync("../../../config.json"))["api"]["token"].ToString();
 
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();
+
+            MySqlCommends.SyncClientWithDatabase();
 
             _timer.Elapsed += TimerEvents.Elapsed;
             _timer.Enabled = true;

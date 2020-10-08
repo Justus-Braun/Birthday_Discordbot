@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Birthday_Discordbot.Events;
+using Discord;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Utilities.Collections;
+using ConnectionState = System.Data.ConnectionState;
 
 namespace Birthday_Discordbot.MySql
 {
@@ -31,7 +36,7 @@ namespace Birthday_Discordbot.MySql
         {
             var db = new MySqlConnection(ConString);
             db.Open();
-            Console.WriteLine("Database Connection is Open");
+            ClientEvents.Log(new LogMessage(LogSeverity.Info, "Database", "Connection Open"));
             return db;
         }
 
@@ -63,9 +68,27 @@ namespace Birthday_Discordbot.MySql
 
         private static MySqlDataReader GetDataReader(MySqlCommand sqlAbfrage) => sqlAbfrage.ExecuteReader();
 
-        public void AddUserToDatabase(string username, string date)
+        private static ulong[] ReaderReads(IDataReader reader)
         {
-            var mySqlCommand = CreateCommend($"Insert into Birthday_DiscordBot.user (username, birthday) VALUES (\"{username}\", \"{date}\");");
+            List<ulong> list = new List<ulong>();
+            try
+            {
+                while (reader.Read())
+                {
+                    list.Add((ulong)reader[0]);
+                }
+                reader.Close();
+            }
+            catch (Exception e)
+            {
+                ClientEvents.Log(new LogMessage(LogSeverity.Error, e.Source, e.Message));
+            }
+            return list.ToArray();
+        }
+
+        public void AddUserToDatabase(ulong userId, ulong guildId, DateTime date)
+        {
+            var mySqlCommand = CreateCommend($"Insert into Birthday_DiscordBot.user (userID, birthday, guild) VALUES ({userId}, \"{date:yyyy-MM-dd}\", {guildId});");
             mySqlCommand.ExecuteNonQuery();
         }
 
@@ -75,12 +98,26 @@ namespace Birthday_Discordbot.MySql
             mySqlCommand.ExecuteNonQuery();
         }
 
-        public IEnumerable<ulong> QueryThroughGuilds(string colummeName)
+        public ulong[] QueryThroughGuilds(string colummeName)
         {
-            var mySqlCommend = CreateCommend($"Select {colummeName} from Birthday_DiscordBot.guilds;");
-            var reader = GetDataReader(mySqlCommend);
-            var guilds = reader.Cast<ulong>().ToArray();
-            reader.Close();
+            bool error;
+            ulong[] guilds = default;
+            do
+            {
+                error = false;
+                try
+                {
+                    var mySqlCommend = CreateCommend($"Select {colummeName} from Birthday_DiscordBot.guilds;");
+                    var reader = GetDataReader(mySqlCommend);
+                    guilds = ReaderReads(reader);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(new Random().Next(5));
+                    error = true;
+                }
+            } while (error);
             return guilds;
         }
 
@@ -88,6 +125,29 @@ namespace Birthday_Discordbot.MySql
         {
             var mySqlCommand = CreateCommend($"delete from guilds where guildID = {guildId};");
             mySqlCommand.ExecuteNonQuery();
+        }
+
+        public ulong[] GetUserByGuild(ulong guildId, DateTime date)
+        {
+            bool error;
+            ulong[] guilds = default;
+            do
+            {
+                error = false;
+                try
+                {
+                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday = \"{date:yyyy-MM-dd}\";");
+                    var reader = GetDataReader(mySqlCommend);
+                    guilds = ReaderReads(reader);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(new Random().Next(5));
+                    error = true;
+                }
+            } while (error);
+            return guilds;
         }
     }
 }
