@@ -88,7 +88,9 @@ namespace Birthday_Discordbot.MySql
 
         public void AddUserToDatabase(ulong userId, ulong guildId, DateTime date)
         {
-            var mySqlCommand = CreateCommend($"Insert into Birthday_DiscordBot.user (userID, birthday, guild) VALUES ({userId}, \"{date:yyyy-MM-dd}\", {guildId});");
+            var mySqlCommand =
+                CreateCommend(
+                    $"Insert into Birthday_DiscordBot.user (userID, birthday, guild) VALUES ({userId}, \"{date:yyyy-MM-dd}\", {guildId});");
             mySqlCommand.ExecuteNonQuery();
         }
 

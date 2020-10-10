@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using Birthday_Discordbot.Events;
 using Discord;
-using Discord.WebSocket;
 
 namespace Birthday_Discordbot.MySql
 {
@@ -17,19 +17,24 @@ namespace Birthday_Discordbot.MySql
             var guildsDatabase = Mysql.QueryThroughGuilds("guildID");
             var guildsClient = Program.Client.Guilds.ToArray().Select(variable => variable.Id).ToArray();
              
-            foreach (var value in guildsDatabase)
+            foreach (var guildId in guildsDatabase)
             {
-                if (!guildsClient.Contains(value))
-                {
-                    Mysql.DeleteGuild(value);
-                }
+                if (!guildsClient.Contains(guildId)) Mysql.DeleteGuild(guildId);
             }
 
-            foreach (var variable in guildsClient)
+            foreach (var guildId in guildsClient)
             {
-                if (!guildsDatabase.Contains(variable))
+                if (guildsDatabase.Contains(guildId))
                 {
-                    Mysql.AddGuildToDatabase(variable, Program.Client.GetGuild(variable).DefaultChannel.Id);
+                    //Guild is in Database
+                    ClientEvents.Log(new LogMessage(LogSeverity.Info, "In Database",
+                        $"Guild: {Program.Client.GetGuild(guildId).Name}"));
+                }
+                else
+                {
+                    Mysql.AddGuildToDatabase(guildId, Program.Client.GetGuild(guildId).DefaultChannel.Id);
+                    ClientEvents.Log(new LogMessage(LogSeverity.Info, "Added To Database",
+                        $"Guild: {Program.Client.GetGuild(guildId).Name}"));
                 }
             }
         }
@@ -38,7 +43,7 @@ namespace Birthday_Discordbot.MySql
 
         public static void AddUser(ulong userId, DateTime date, ulong guildId) => Mysql.AddUserToDatabase(userId, guildId, date);
 
-        public static ulong[] GetAllGuilds() => (ulong[])Mysql.QueryThroughGuilds("*");
+        public static ulong[] GetAllGuilds() => Mysql.QueryThroughGuilds("*");
 
         public static ulong[] GetAllUsersInGuildByBirthday(ulong guildId) => Mysql.GetUserByGuild(guildId, DateTime.Today);
     }
