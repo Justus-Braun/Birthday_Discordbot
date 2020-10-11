@@ -15,9 +15,16 @@ namespace Birthday_Discordbot.Events
             {
                 if (DateTime.TryParse(message.Content.Remove(0, 1), out DateTime result))
                 {
+                    var guildId = ((SocketGuildChannel)message.Channel).Guild.Id;
+                    var author = message.Author.Id;
                     //YYYY-MM-DD mysql date
-                    MySqlCommends.AddUser(message.Author.Id, result, ((SocketGuildChannel) message.Channel).Id);
-                    await message.Channel.SendMessageAsync($"Fertig");
+                    if (MySqlCommends.UserExist(author, guildId))
+                        MySqlCommends.DeleteUser(author, guildId);
+
+                    MySqlCommends.AddUser(author, result, guildId);
+
+
+                    await message.Channel.SendMessageAsync($"{message.Author.Mention} dich hab ich mir gemerkt");
                 }
                 else
                 {

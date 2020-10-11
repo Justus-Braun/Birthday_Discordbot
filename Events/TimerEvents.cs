@@ -11,6 +11,7 @@ namespace Birthday_Discordbot.Events
 
         public static async void Elapsed(object sender, ElapsedEventArgs e)
         {
+            Console.WriteLine("timer");
             //Check if day passed by
             DateTime currentDay = DateTime.Today;
             if (currentDay == _lastTimeCheck) return;
@@ -28,18 +29,12 @@ namespace Birthday_Discordbot.Events
                 if (!(guild.GetChannel(guild.DefaultChannel.Id) is IMessageChannel channel)) continue;
 
                 var allUserWithBirthday = MySqlCommends.GetAllUsersInGuildByBirthday(guild.Id);
-
-
-
-                
-                var author = await channel.GetUserAsync(guild.OwnerId);
-                
-
-
-
                 try
                 {
-                    await channel.SendMessageAsync(author.Username);
+                    foreach (var user in allUserWithBirthday)
+                    {
+                        await channel.SendMessageAsync($"Alles gute zum Geburtstag {guild.GetUser(user).Username}");
+                    }
                 }
                 catch (Discord.Net.HttpException ex)
                 {

@@ -20,8 +20,7 @@ create table user(
 #Query through user table
 select * from user;
 select * from guilds;
-
-
+describe user;
 
 select * from user left join guilds on user.guild = guilds.ID;
 

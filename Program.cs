@@ -16,7 +16,7 @@ namespace Birthday_Discordbot
 
         public static DiscordSocketClient Client;
 
-        private readonly Timer _timer = new Timer(1000);
+        private readonly Timer _timer = new Timer(1000 * 30);
 
         private async Task MainAsync()
         {
