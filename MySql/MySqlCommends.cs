@@ -43,8 +43,14 @@ namespace Birthday_Discordbot.MySql
 
         public static void AddUser(ulong userId, DateTime date, ulong guildId) => Mysql.AddUserToDatabase(userId, guildId, date);
 
+        public static bool UserExist(ulong userId, ulong guildId) => Mysql.GetUser(userId, guildId) == userId;
+
         public static ulong[] GetAllGuilds() => Mysql.QueryThroughGuilds("*");
 
+        public static void DeleteUser(ulong userId, ulong guildId) => Mysql.DeleteUser(userId, guildId);
+
+
+        //TODO Use only date and no year
         public static ulong[] GetAllUsersInGuildByBirthday(ulong guildId) => Mysql.GetUserByGuild(guildId, DateTime.Today);
     }
 }

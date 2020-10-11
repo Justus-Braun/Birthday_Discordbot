@@ -115,7 +115,7 @@ namespace Birthday_Discordbot.MySql
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message);
                     Thread.Sleep(new Random().Next(5));
                     error = true;
                 }
@@ -125,7 +125,13 @@ namespace Birthday_Discordbot.MySql
 
         public void DeleteGuild(ulong guildId)
         {
-            var mySqlCommand = CreateCommend($"delete from guilds where guildID = {guildId};");
+            var mySqlCommand = CreateCommend($"delete from Birthday_DiscordBot.guilds where guildID = {guildId};");
+            mySqlCommand.ExecuteNonQuery();
+        }
+
+        public void DeleteUser(ulong userId, ulong guildId)
+        {
+            var mySqlCommand = CreateCommend($"delete from Birthday_DiscordBot.user where userID = {userId} and guild = {guildId};");
             mySqlCommand.ExecuteNonQuery();
         }
 
@@ -144,12 +150,37 @@ namespace Birthday_Discordbot.MySql
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message);
                     Thread.Sleep(new Random().Next(5));
                     error = true;
                 }
             } while (error);
             return guilds;
         }
+
+        public ulong GetUser(ulong userId, ulong guildId)
+        {
+            bool error;
+            ulong user = default;
+            do
+            {
+                error = false;
+                try
+                {
+                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.userID = {userId};");
+                    var reader = GetDataReader(mySqlCommend);
+                    user = ReaderReads(reader).FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Thread.Sleep(new Random().Next(5));
+                    error = true;
+                }
+            } while (error);
+            return user;
+        }
+
+
     }
 }
