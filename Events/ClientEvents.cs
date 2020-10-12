@@ -13,9 +13,9 @@ namespace Birthday_Discordbot.Events
         public static async Task MessageReceived(SocketMessage message)
         {
             if (message.Author.IsBot) { return; }
-            if (message.Content.StartsWith("!"))
+            if (message.Content.StartsWith(MySqlCommends.GetPrefix(((SocketGuildChannel)message.Channel).Guild.Id)))
             {
-                if (DateTime.TryParse(message.Content.Remove(0, 1), out DateTime result))
+                if (DateTime.TryParse(message.Content.Remove(0, 1), out var result))
                 {
                     var guildId = ((SocketGuildChannel)message.Channel).Guild.Id;
                     var author = message.Author.Id;
@@ -44,7 +44,7 @@ namespace Birthday_Discordbot.Events
         public static Task Log(LogMessage msg)
         {
             Console.Write($"{DateTime.Now.ToString(CultureInfo.CurrentCulture).Remove(0, 11)} {msg.Severity} {msg.Source} {msg.Exception}");
-            Console.SetCursorPosition(30,Console.CursorTop);
+            Console.SetCursorPosition(40,Console.CursorTop);
             Console.WriteLine(msg.Message);
             return Task.CompletedTask;
         }

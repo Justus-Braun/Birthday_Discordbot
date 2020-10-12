@@ -68,7 +68,7 @@ namespace Birthday_Discordbot.MySql
 
         private static MySqlDataReader GetDataReader(MySqlCommand sqlAbfrage) => sqlAbfrage.ExecuteReader();
 
-        private static ulong[] ReaderReads(IDataReader reader)
+        private static ulong[] ReaderReadUlong(IDataReader reader)
         {
             List<ulong> list = new List<ulong>();
             try
@@ -86,6 +86,23 @@ namespace Birthday_Discordbot.MySql
             return list.ToArray();
         }
 
+        private static string[] ReaderReadsString(IDataReader reader)
+        {
+            List<string> list = new List<string>();
+            try
+            {
+                while (reader.Read())
+                {
+                    list.Add((string)reader[0]);
+                }
+                reader.Close();
+            }
+            catch (Exception e)
+            {
+                ClientEvents.Log(new LogMessage(LogSeverity.Error, e.Source, e.Message));
+            }
+            return list.ToArray();
+        }
         public void AddUserToDatabase(ulong userId, ulong guildId, DateTime date)
         {
             var mySqlCommand =
@@ -111,7 +128,7 @@ namespace Birthday_Discordbot.MySql
                 {
                     var mySqlCommend = CreateCommend($"Select {colummeName} from Birthday_DiscordBot.guilds;");
                     var reader = GetDataReader(mySqlCommend);
-                    guilds = ReaderReads(reader);
+                    guilds = ReaderReadUlong(reader);
                 }
                 catch (Exception e)
                 {
@@ -152,7 +169,7 @@ namespace Birthday_Discordbot.MySql
 
                     var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday rlike '{stringDate}';");
                     var reader = GetDataReader(mySqlCommend);
-                    guilds = ReaderReads(reader);
+                    guilds = ReaderReadUlong(reader);
                 }
                 catch (Exception e)
                 {
@@ -175,7 +192,7 @@ namespace Birthday_Discordbot.MySql
                 {
                     var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.userID = {userId};");
                     var reader = GetDataReader(mySqlCommend);
-                    user = ReaderReads(reader).FirstOrDefault();
+                    user = ReaderReadUlong(reader).FirstOrDefault();
                 }
                 catch (Exception e)
                 {
@@ -187,6 +204,28 @@ namespace Birthday_Discordbot.MySql
             return user;
         }
 
+        public string GetPrefix(ulong guildId)
+        {
+            bool error;
+            string prefix = default;
+            do
+            {
+                error = false;
+                try
+                {
+                    var mySqlCommend = CreateCommend($"select prefix from Birthday_DiscordBot.guilds where guildID = {guildId};");
+                    var reader = GetDataReader(mySqlCommend);
+                    prefix = ReaderReadsString(reader).FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Thread.Sleep(new Random().Next(5));
+                    error = true;
+                }
+            } while (error);
+            return prefix;
+        }
 
     }
 }
