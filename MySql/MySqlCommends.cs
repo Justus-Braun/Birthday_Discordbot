@@ -51,6 +51,6 @@ namespace Birthday_Discordbot.MySql
 
 
         //TODO Use only date and no year
-        public static ulong[] GetAllUsersInGuildByBirthday(ulong guildId) => Mysql.GetUserByGuild(guildId, DateTime.Today);
+        public static ulong[] GetAllUsersInGuildByBirthday(ulong guildId) => Mysql.GetUserInGuildByBirthday(guildId, DateTime.Today, true);
     }
 }

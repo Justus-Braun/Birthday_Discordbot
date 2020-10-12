@@ -135,7 +135,7 @@ namespace Birthday_Discordbot.MySql
             mySqlCommand.ExecuteNonQuery();
         }
 
-        public ulong[] GetUserByGuild(ulong guildId, DateTime date)
+        public ulong[] GetUserInGuildByBirthday(ulong guildId, DateTime date, bool allYears)
         {
             bool error;
             ulong[] guilds = default;
@@ -144,7 +144,13 @@ namespace Birthday_Discordbot.MySql
                 error = false;
                 try
                 {
-                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday = \"{date:yyyy-MM-dd}\";");
+                    var date2 = date.ToString("yyyy-MM-dd");
+                    if (allYears)
+                    {
+                        date2 = date2.Remove(0,4).Insert(0, "^CU[0-9]'+'");
+                    }
+
+                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday rlike '{date2}';");
                     var reader = GetDataReader(mySqlCommend);
                     guilds = ReaderReads(reader);
                 }

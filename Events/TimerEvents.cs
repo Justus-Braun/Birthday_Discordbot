@@ -11,10 +11,8 @@ namespace Birthday_Discordbot.Events
 
         public static async void Elapsed(object sender, ElapsedEventArgs e)
         {
-            Console.WriteLine("timer");
-            //Check if day passed by
-            DateTime currentDay = DateTime.Today;
-            if (currentDay == _lastTimeCheck) return;
+            //Check if day passed 
+            if (DateTime.Today == _lastTimeCheck) return;
 
             //If new data write it to log
             await ClientEvents.Log(new LogMessage(LogSeverity.Info, "Timer", "New Day"));
