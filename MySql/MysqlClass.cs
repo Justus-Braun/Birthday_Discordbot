@@ -144,13 +144,13 @@ namespace Birthday_Discordbot.MySql
                 error = false;
                 try
                 {
-                    var date2 = date.ToString("yyyy-MM-dd");
+                    var stringDate = date.ToString("yyyy-MM-dd");
                     if (allYears)
                     {
-                        date2 = date2.Remove(0,4).Insert(0, "^CU[0-9]'+'");
+                        stringDate = stringDate.Remove(0,4).Insert(0, "^CU[0-9]'+'");
                     }
 
-                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday rlike '{date2}';");
+                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday rlike '{stringDate}';");
                     var reader = GetDataReader(mySqlCommend);
                     guilds = ReaderReads(reader);
                 }

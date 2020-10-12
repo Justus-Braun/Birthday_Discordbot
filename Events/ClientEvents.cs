@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Birthday_Discordbot.MySql;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.VisualBasic;
 
 namespace Birthday_Discordbot.Events
 {
@@ -41,7 +43,9 @@ namespace Birthday_Discordbot.Events
 
         public static Task Log(LogMessage msg)
         {
-            Console.WriteLine(msg.ToString());
+            Console.Write($"{DateTime.Now.ToString(CultureInfo.CurrentCulture).Remove(0, 11)} {msg.Severity} {msg.Source} {msg.Exception}");
+            Console.SetCursorPosition(30,Console.CursorTop);
+            Console.WriteLine(msg.Message);
             return Task.CompletedTask;
         }
     }
