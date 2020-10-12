@@ -33,7 +33,7 @@ namespace Birthday_Discordbot.Events
                 {
                     foreach (var user in allUserWithBirthday)
                     {
-                        await channel.SendMessageAsync($"Alles gute zum Geburtstag {guild.GetUser(user).Username}");
+                        await channel.SendMessageAsync($"Alles gute zum Geburtstag {guild.GetUser(user).Mention}");
                     }
                 }
                 catch (Discord.Net.HttpException ex)
