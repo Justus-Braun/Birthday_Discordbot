@@ -54,5 +54,7 @@ namespace Birthday_Discordbot.MySql
         public static ulong[] GetAllUsersInGuildByBirthday(ulong guildId) => Mysql.GetUserInGuildByBirthday(guildId, DateTime.Today, true);
 
         public static string GetPrefix(ulong guildId) => Mysql.GetPrefix(guildId);
+
+        public static void ChangePrefix(string newPrefix, ulong guildId) => Mysql.ChangePrefix(newPrefix, guildId);
     }
 }

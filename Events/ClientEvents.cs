@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Birthday_Discordbot.MySql;
 using Discord;
@@ -13,18 +14,38 @@ namespace Birthday_Discordbot.Events
         public static async Task MessageReceived(SocketMessage message)
         {
             if (message.Author.IsBot) { return; }
-            if (message.Content.StartsWith(MySqlCommends.GetPrefix(((SocketGuildChannel)message.Channel).Guild.Id)))
+
+            var guildId = ((SocketGuildChannel) message.Channel).Guild.Id;
+            var prefix = MySqlCommends.GetPrefix(guildId);
+            var commend = message.Content.Remove(0, prefix.Length).Split(' ').First();
+            var condition = message.Content.Remove(0, prefix.Length).Split(' ').Last();
+            
+            if (message.Content.StartsWith(prefix))
             {
-                if (DateTime.TryParse(message.Content.Remove(0, 1), out var result))
+                switch (commend)
                 {
-                    var guildId = ((SocketGuildChannel)message.Channel).Guild.Id;
+                    case "prefix":
+                        if(((SocketGuildUser) message.MentionedUsers).GuildPermissions.Administrator)
+                            MySqlCommends.ChangePrefix(condition, guildId);
+                        break;
+
+                    case "help":
+                        await message.Channel.SendMessageAsync("Hallo ich bin der Geburtstagsbot ich kann:\n" +
+                                                               $"Geburtsdatum angeben: {prefix}(geburtsdatum)  z.B. {prefix}01.01.2000\n" +
+                                                               $"Prefix ändern: {prefix}prefix (neuer Perfix) z.B. {prefix}perfix !");
+                        break;
+                }
+
+
+
+                if (DateTime.TryParse(message.Content.Remove(0, prefix.Length), out var result))
+                {
                     var author = message.Author.Id;
                     //YYYY-MM-DD mysql date
                     if (MySqlCommends.UserExist(author, guildId))
                         MySqlCommends.DeleteUser(author, guildId);
 
                     MySqlCommends.AddUser(author, result, guildId);
-
 
                     await message.Channel.SendMessageAsync($"{message.Author.Mention} dich hab ich mir gemerkt");
                 }

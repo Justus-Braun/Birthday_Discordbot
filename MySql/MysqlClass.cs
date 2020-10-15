@@ -227,5 +227,12 @@ namespace Birthday_Discordbot.MySql
             return prefix;
         }
 
+
+        public void ChangePrefix(string newPrefix, ulong guildId)
+        {
+            //TODO check if sql commend is right
+            var mySqlCommand = CreateCommend($"UPDATE Birthday_DiscordBot.guilds SET prefix = '{newPrefix}' WHERE (guildID = {guildId});");
+            mySqlCommand.ExecuteNonQuery();
+        }
     }
 }
