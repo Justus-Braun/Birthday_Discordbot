@@ -15,43 +15,46 @@ namespace Birthday_Discordbot.Events
         {
             if (message.Author.IsBot) { return; }
 
-            var guildId = ((SocketGuildChannel) message.Channel).Guild.Id;
+            var guildId = ((SocketGuildChannel)message.Channel).Guild.Id;
             var prefix = MySqlCommends.GetPrefix(guildId);
             var commend = message.Content.Remove(0, prefix.Length).Split(' ').First();
             var condition = message.Content.Remove(0, prefix.Length).Split(' ').Last();
-            
+
             if (message.Content.StartsWith(prefix))
             {
                 switch (commend)
                 {
                     case "prefix":
-                        if(((SocketGuildUser) message.MentionedUsers).GuildPermissions.Administrator)
+                        if (((SocketGuildUser) message.Author).GuildPermissions.Administrator)
+                        {
                             MySqlCommends.ChangePrefix(condition, guildId);
+                            await message.Channel.SendMessageAsync($"Prefix changed to {condition}");
+                        }
                         break;
 
                     case "help":
                         await message.Channel.SendMessageAsync("Hallo ich bin der Geburtstagsbot ich kann:\n" +
-                                                               $"Geburtsdatum angeben: {prefix}(geburtsdatum)  z.B. {prefix}01.01.2000\n" +
+                                                               $"Geburtsdatum angeben: {prefix}(geburtsdatum)  z.B. {prefix}01.01.2000\n" + 
                                                                $"Prefix ändern: {prefix}prefix (neuer Perfix) z.B. {prefix}perfix !");
                         break;
-                }
 
+                    default:
+                        if (DateTime.TryParse(message.Content.Remove(0, prefix.Length), out var result))
+                        {
+                            var author = message.Author.Id;
+                            //YYYY-MM-DD mysql date
+                            if (MySqlCommends.UserExist(author, guildId))
+                                MySqlCommends.DeleteUser(author, guildId);
 
+                            MySqlCommends.AddUser(author, result, guildId);
 
-                if (DateTime.TryParse(message.Content.Remove(0, prefix.Length), out var result))
-                {
-                    var author = message.Author.Id;
-                    //YYYY-MM-DD mysql date
-                    if (MySqlCommends.UserExist(author, guildId))
-                        MySqlCommends.DeleteUser(author, guildId);
-
-                    MySqlCommends.AddUser(author, result, guildId);
-
-                    await message.Channel.SendMessageAsync($"{message.Author.Mention} dich hab ich mir gemerkt");
-                }
-                else
-                {
-                    await message.Channel.SendMessageAsync("Wrong Dataformat");
+                            await message.Channel.SendMessageAsync($"{message.Author.Mention} dich hab ich mir gemerkt");
+                        }
+                        else
+                        {
+                            await message.Channel.SendMessageAsync("Wrong Dataformat");
+                        }
+                        break;
                 }
             }
         }
@@ -65,7 +68,7 @@ namespace Birthday_Discordbot.Events
         public static Task Log(LogMessage msg)
         {
             Console.Write($"{DateTime.Now.ToString(CultureInfo.CurrentCulture).Remove(0, 11)} {msg.Severity} {msg.Source} {msg.Exception}");
-            Console.SetCursorPosition(40,Console.CursorTop);
+            Console.SetCursorPosition(40, Console.CursorTop);
             Console.WriteLine(msg.Message);
             return Task.CompletedTask;
         }

@@ -164,10 +164,10 @@ namespace Birthday_Discordbot.MySql
                     var stringDate = date.ToString("yyyy-MM-dd");
                     if (allYears)
                     {
-                        stringDate = stringDate.Remove(0,4).Insert(0, "^CU[0-9]'+'");
+                        stringDate = stringDate.Remove(0,4).Insert(0, "____");
                     }
 
-                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday rlike '{stringDate}';");
+                    var mySqlCommend = CreateCommend($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday like '{stringDate}';");
                     var reader = GetDataReader(mySqlCommend);
                     guilds = ReaderReadUlong(reader);
                 }
@@ -230,7 +230,6 @@ namespace Birthday_Discordbot.MySql
 
         public void ChangePrefix(string newPrefix, ulong guildId)
         {
-            //TODO check if sql commend is right
             var mySqlCommand = CreateCommend($"UPDATE Birthday_DiscordBot.guilds SET prefix = '{newPrefix}' WHERE (guildID = {guildId});");
             mySqlCommand.ExecuteNonQuery();
         }

@@ -31,6 +31,8 @@ namespace Birthday_Discordbot.Events
                 {
                     foreach (var user in allUserWithBirthday)
                     {
+                        await ClientEvents.Log(new LogMessage(LogSeverity.Info, "Timer",
+                            guild.GetUser(user).Username + " had Birthday"));
                         await channel.SendMessageAsync($"Alles gute zum Geburtstag {guild.GetUser(user).Mention}");
                     }
                 }

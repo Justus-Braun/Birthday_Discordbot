@@ -49,8 +49,6 @@ namespace Birthday_Discordbot.MySql
 
         public static void DeleteUser(ulong userId, ulong guildId) => Mysql.DeleteUser(userId, guildId);
 
-
-        //TODO Use only date and no year
         public static ulong[] GetAllUsersInGuildByBirthday(ulong guildId) => Mysql.GetUserInGuildByBirthday(guildId, DateTime.Today, true);
 
         public static string GetPrefix(ulong guildId) => Mysql.GetPrefix(guildId);
