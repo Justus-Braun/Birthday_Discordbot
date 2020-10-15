@@ -1,6 +1,8 @@
 # Birthday_Discordbot
 
-# Code for setting up MySQL Database
+This bot can tell the Users when they got Birthday
+
+Code for setting up MySQL Database
 ~~~~sql
 
   #Create Database
