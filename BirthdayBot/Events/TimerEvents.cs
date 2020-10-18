@@ -2,6 +2,7 @@
 using System.Timers;
 using Birthday_Discordbot.MySql;
 using Discord;
+using Discord.Net;
 
 namespace Birthday_Discordbot.Events
 {
@@ -21,11 +22,13 @@ namespace Birthday_Discordbot.Events
             var allGuilds = MySqlCommends.GetAllGuilds();
             foreach (var variable in allGuilds)
             {
+                //Gets Guild
                 var guild = Program.Client.GetGuild(variable);
-
+            
                 if (guild == null) continue;
-                if (!(guild.GetChannel(guild.DefaultChannel.Id) is IMessageChannel channel)) continue;
+                if (!(guild.GetChannel(MySqlCommends.GetChannel(guild.Id)) is IMessageChannel channel)) continue;
 
+                //Get all Users who have birthday in this Guild
                 var allUserWithBirthday = MySqlCommends.GetAllUsersInGuildByBirthday(guild.Id);
                 try
                 {
@@ -33,7 +36,17 @@ namespace Birthday_Discordbot.Events
                     {
                         await ClientEvents.Log(new LogMessage(LogSeverity.Info, "Timer",
                             guild.GetUser(user).Username + " had Birthday"));
-                        await channel.SendMessageAsync($"Alles gute zum Geburtstag {guild.GetUser(user).Mention}");
+                        try
+                        {
+                            await channel.SendMessageAsync($"Alles gute zum Geburtstag {guild.GetUser(user).Mention}");
+                        }
+                        catch (HttpException ex)
+                        {
+                            await ClientEvents.Log(new LogMessage(LogSeverity.Error, guild.Name, ex.Message));
+                            MySqlCommends.SetChannel(guild.Id, guild.DefaultChannel.Id);
+                            await guild.Owner.SendMessageAsync(
+                                $"Auf ihrem Server {guild.Name} wurde der Standart Channel auf ihren default Channel gesetzt");
+                        }
                     }
                 }
                 catch (Discord.Net.HttpException ex)

@@ -1,5 +1,6 @@
 .git
 .vs
-bin
-obj
-config.json
+BirthdayBot/.vs
+BirthdayBot/bin
+BirthdayBot/obj
+BirthdayBot/config.json

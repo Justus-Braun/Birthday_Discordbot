@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Birthday_Discordbot.MySql;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.VisualBasic;
 
 namespace Birthday_Discordbot.Events
 {
@@ -24,8 +23,12 @@ namespace Birthday_Discordbot.Events
             {
                 switch (commend)
                 {
+                    case "":
+                    case null:
+                        break;
+
                     case "prefix":
-                        if (((SocketGuildUser) message.Author).GuildPermissions.Administrator)
+                        if (IsAuthorAdmin(message))
                         {
                             MySqlCommends.ChangePrefix(condition, guildId);
                             await message.Channel.SendMessageAsync($"Prefix changed to {condition}");
@@ -34,30 +37,48 @@ namespace Birthday_Discordbot.Events
 
                     case "help":
                         await message.Channel.SendMessageAsync("Hallo ich bin der Geburtstagsbot ich kann:\n" +
-                                                               $"Geburtsdatum angeben: {prefix}(geburtsdatum)  z.B. {prefix}01.01.2000\n" + 
-                                                               $"Prefix ändern: {prefix}prefix (neuer Perfix) z.B. {prefix}perfix !");
+                                                               $"Geburtsdatum angeben: {prefix}(Geburtsdatum) DD.MM.YYYY  z.B. {prefix}01.01.2000\n" + 
+                                                               $"Prefix ändern: {prefix}prefix (neuer Prefix) z.B. {prefix}prefix !" +
+                                                               $"Ausgabe Channel ändern: {prefix}set");
                         break;
 
-                    default:
-                        if (DateTime.TryParse(message.Content.Remove(0, prefix.Length), out var result))
+                    case "set":
+                        if (IsAuthorAdmin(message))
                         {
+                            MySqlCommends.SetChannel(guildId, message.Channel.Id);
+                            await message.Channel.SendMessageAsync("Ich gratuliere jetzt hier");
+                        }
+                        break;
+
+
+                    default:
+                        if (DateTime.TryParse(commend, out var result))
+                        {
+                            //Gets Id from Author
                             var author = message.Author.Id;
+
                             //YYYY-MM-DD mysql date
+                            //Deletes User if he is in DB
                             if (MySqlCommends.UserExist(author, guildId))
                                 MySqlCommends.DeleteUser(author, guildId);
 
+                            //User gehts Added
                             MySqlCommends.AddUser(author, result, guildId);
 
-                            await message.Channel.SendMessageAsync($"{message.Author.Mention} dich hab ich mir gemerkt");
+                            await message.Channel.SendMessageAsync(
+                                $"{message.Author.Mention} dich hab ich mir gemerkt");
                         }
                         else
                         {
                             await message.Channel.SendMessageAsync("Wrong Dataformat");
                         }
+
                         break;
                 }
             }
         }
+
+        private static bool IsAuthorAdmin(SocketMessage message) => ((SocketGuildUser) message.Author).GuildPermissions.Administrator;
 
         public static async Task JoinedGuild(SocketGuild guild)
         {
