@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Birthday_Discordbot.Events;
 using Birthday_Discordbot.MySql;
@@ -18,6 +19,8 @@ namespace Birthday_Discordbot
 
         private readonly Timer _timer = new Timer(1000 * 60 * 5);
 
+        public static readonly string Json = File.ReadAllText("config.json");
+
         private async Task MainAsync()
         {
             //Client Events
@@ -27,14 +30,16 @@ namespace Birthday_Discordbot
             Client.JoinedGuild += ClientEvents.JoinedGuild;
 
             //Gets Token from Json
-            var token = JObject.Parse(await File.ReadAllTextAsync("config.json"))["api"]["token"].ToString();
+
+
+            var token = JObject.Parse(Json)["api"]["token"].ToString();
 
             //Logging in 
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();
 
             //Deletes all unused Guilds in Database and Adds missing ones
-            MySqlCommends.SyncClientWithDatabase();
+            Database.SyncClientWithDatabase();
 
             //Starts timer
             _timer.Elapsed += TimerEvents.Elapsed;
