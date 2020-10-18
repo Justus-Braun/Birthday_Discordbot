@@ -1,0 +1,8 @@
+{
+  "database": {
+    "connectionString": "SERVER=ip;Port=port;DATABASE=Birthday_DiscordBot;UID=username;PASSWORD=password"
+  },
+  "api": {
+    "token": "your token"
+  }
+}
