@@ -19,19 +19,21 @@ namespace Birthday_Discordbot.Events
             await ClientEvents.Log(new LogMessage(LogSeverity.Info, "Timer", "New Day"));
 
             //Get all guilds from Database
-            var allGuilds = MySqlCommends.GetAllGuilds();
+            var allGuilds = Database.GetAllGuilds();
             foreach (var variable in allGuilds)
             {
                 //Gets Guild
                 var guild = Program.Client.GetGuild(variable);
             
+                //Gets Channel by Guild 
                 if (guild == null) continue;
-                if (!(guild.GetChannel(MySqlCommends.GetChannel(guild.Id)) is IMessageChannel channel)) continue;
+                if (!(guild.GetChannel(Database.GetChannel(guild.Id)) is IMessageChannel channel)) continue;
 
                 //Get all Users who have birthday in this Guild
-                var allUserWithBirthday = MySqlCommends.GetAllUsersInGuildByBirthday(guild.Id);
+                var allUserWithBirthday = Database.GetAllUsersInGuildByBirthday(guild.Id);
                 try
                 {
+                    //Querys throw all Users whos Birthday is today
                     foreach (var user in allUserWithBirthday)
                     {
                         await ClientEvents.Log(new LogMessage(LogSeverity.Info, "Timer",
@@ -42,15 +44,17 @@ namespace Birthday_Discordbot.Events
                         }
                         catch (HttpException ex)
                         {
+                            //If Bot does not have Permissions to write here
                             await ClientEvents.Log(new LogMessage(LogSeverity.Error, guild.Name, ex.Message));
-                            MySqlCommends.SetChannel(guild.Id, guild.DefaultChannel.Id);
+                            Database.SetChannel(guild.Id, guild.DefaultChannel.Id);
                             await guild.Owner.SendMessageAsync(
                                 $"Auf ihrem Server {guild.Name} wurde der Standart Channel auf ihren default Channel gesetzt");
                         }
                     }
                 }
-                catch (Discord.Net.HttpException ex)
+                catch (HttpException ex)
                 {
+                    //Writes error to log
                     await ClientEvents.Log(new LogMessage(LogSeverity.Error, guild.Name, ex.Message));
                 }
             }
