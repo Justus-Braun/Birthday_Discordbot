@@ -16,22 +16,27 @@ namespace Birthday_Discordbot
 
         public static DiscordSocketClient Client;
 
-        private readonly Timer _timer = new Timer(1000 * 5);
+        private readonly Timer _timer = new Timer(1000 * 60 * 5);
 
         private async Task MainAsync()
         {
+            //Client Events
             Client = new DiscordSocketClient();
             Client.Log += ClientEvents.Log; 
             Client.MessageReceived += ClientEvents.MessageReceived;
             Client.JoinedGuild += ClientEvents.JoinedGuild;
 
-            var token = JObject.Parse(await File.ReadAllTextAsync("../../../config.json"))["api"]["token"].ToString();
+            //Gets Token from Json
+            var token = JObject.Parse(await File.ReadAllTextAsync("config.json"))["api"]["token"].ToString();
 
+            //Logging in 
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();
 
+            //Deletes all unused Guilds in Database and Adds missing ones
             MySqlCommends.SyncClientWithDatabase();
 
+            //Starts timer
             _timer.Elapsed += TimerEvents.Elapsed;
             _timer.Enabled = true;
 
