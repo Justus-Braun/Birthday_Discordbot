@@ -34,7 +34,7 @@ namespace Birthday_Discordbot.Events
                         //Changes prefix
                         if (IsAuthorAdmin(message))
                         {
-                            Database.ChangePrefix(condition, guildId);
+                            Database.ChangePrefix(Database.EscapeMySqlInjction(condition), guildId);
                             await message.Channel.SendMessageAsync($"Prefix changed to {condition}");
                         }
                         break;
@@ -88,9 +88,9 @@ namespace Birthday_Discordbot.Events
         //Converts EU date to Us date
         private static string ConvertToUsDate(string commend)
         {
-            var month = commend.Split('.').First();
-            var day = commend.Split('.').Last().Split('.').First();
-            var year = commend.Split('.').Last().Split('.').Last();
+            var day = commend.Split('.').First();
+            var month = commend.Split('.')[1];
+            var year = commend.Split('.').Last();
             return $"{month}.{day}.{year}";
         }
 

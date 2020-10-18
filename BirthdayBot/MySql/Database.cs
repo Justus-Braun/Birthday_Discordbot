@@ -66,6 +66,18 @@ namespace Birthday_Discordbot.MySql
             return sqlAbfrage;
         }
 
+        public static string EscapeMySqlInjction(string text)
+        {
+            text = text.Replace(";", "");
+            text = text.Replace("\"", "");
+            text = text.Replace("--", "");
+            text = text.Replace("/*", "");
+            text = text.Replace("*/", "");
+            text = text.Replace("'", "");
+            text = text.Replace("xp_", "");
+            return text;
+        }
+
         #region Reader
 
         private static MySqlDataReader GetDataReader(MySqlCommand sqlAbfrage) => sqlAbfrage.ExecuteReader();
@@ -112,7 +124,7 @@ namespace Birthday_Discordbot.MySql
         private static string QueryString(string command)
         {
             bool error;
-            string prefix = default;
+            string queryString = default;
             do
             {
                 error = false;
@@ -120,7 +132,7 @@ namespace Birthday_Discordbot.MySql
                 {
                     var mySqlCommend = CreateCommend(command);
                     var reader = GetDataReader(mySqlCommend);
-                    prefix = ReaderReadsString(reader).FirstOrDefault();
+                    queryString = ReaderReadsString(reader).FirstOrDefault();
                 }
                 catch (Exception e)
                 {
@@ -129,7 +141,7 @@ namespace Birthday_Discordbot.MySql
                     error = true;
                 }
             } while (error);
-            return prefix;
+            return queryString;
         }
 
         private static ulong[] QueryUlong(string command)
@@ -194,15 +206,21 @@ namespace Birthday_Discordbot.MySql
             }
         }
 
-        public static void AddGuild(ulong guildId, ulong channelId) => DataDefinition($"Insert into Birthday_DiscordBot.guilds (guildID, channelID) VALUES (\"{guildId}\", \"{channelId}\");");
+        public static void AddGuild(ulong guildId, ulong channelId) =>
+            DataDefinition(
+                $"Insert into Birthday_DiscordBot.guilds (guildID, channelID) VALUES (\"{guildId}\", \"{channelId}\");");
 
-        public static void AddUser(ulong userId, DateTime date, ulong guildId) => DataDefinition($"Insert into Birthday_DiscordBot.user (userID, birthday, guild) VALUES ({userId}, \"{date:yyyy-MM-dd}\", {guildId});");
+        public static void AddUser(ulong userId, DateTime date, ulong guildId) => 
+            DataDefinition($"Insert into Birthday_DiscordBot.user (userID, birthday, guild) VALUES ({userId}, \"{date:yyyy-MM-dd}\", {guildId});");
 
-        public static bool UserExist(ulong userId, ulong guildId) => QueryUlong($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.userID = {userId};").FirstOrDefault() == userId;
+        public static bool UserExist(ulong userId, ulong guildId) => 
+            QueryUlong($"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.userID = {userId};").FirstOrDefault() == userId;
 
-        public static ulong[] GetAllGuilds() => QueryUlong("Select * from Birthday_DiscordBot.guilds;");
+        public static ulong[] GetAllGuilds() => 
+            QueryUlong("Select * from Birthday_DiscordBot.guilds;");
 
-        public static void DeleteUser(ulong userId, ulong guildId) => DataDefinition($"delete from Birthday_DiscordBot.user where userID = {userId} and guild = {guildId};");
+        public static void DeleteUser(ulong userId, ulong guildId) => 
+            DataDefinition($"delete from Birthday_DiscordBot.user where userID = {userId} and guild = {guildId};");
 
         public static ulong[] GetAllUsersInGuildByBirthday(ulong guildId)
         {
@@ -211,13 +229,17 @@ namespace Birthday_Discordbot.MySql
                 $"select userID from Birthday_DiscordBot.user left join Birthday_DiscordBot.guilds on user.guild = guilds.guildID where guilds.guildID = {guildId} and user.birthday like '{stringDate}';");
         }
 
-        public static string GetPrefix(ulong guildId) => QueryString($"select prefix from Birthday_DiscordBot.guilds where guildID = {guildId};");
+        public static string GetPrefix(ulong guildId) => 
+            QueryString($"select prefix from Birthday_DiscordBot.guilds where guildID = {guildId};");
 
-        public static void ChangePrefix(string newPrefix, ulong guildId) => DataDefinition($"UPDATE Birthday_DiscordBot.guilds SET prefix = '{newPrefix}' WHERE(guildID = {guildId});");
+        public static void ChangePrefix(string newPrefix, ulong guildId) => 
+            DataDefinition($"UPDATE Birthday_DiscordBot.guilds SET prefix = '{newPrefix}' WHERE(guildID = {guildId});");
 
-        public static ulong GetChannel(ulong guildId) => QueryUlong($"select channelID from Birthday_DiscordBot.guilds where guildID = {guildId};").FirstOrDefault();
+        public static ulong GetChannel(ulong guildId) => 
+            QueryUlong($"select channelID from Birthday_DiscordBot.guilds where guildID = {guildId};").FirstOrDefault();
 
-        public static void SetChannel(ulong guildId, ulong newChannel) => DataDefinition($"update Birthday_DiscordBot.guilds set channelID = {newChannel} where guildID = {guildId};");
+        public static void SetChannel(ulong guildId, ulong newChannel) => 
+            DataDefinition($"update Birthday_DiscordBot.guilds set channelID = {newChannel} where guildID = {guildId};");
         #endregion
     }
 }
