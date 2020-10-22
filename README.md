@@ -16,7 +16,7 @@ Code for setting up MySQL Database
 
   #Create Table user
   create table user(
-  	  ID int primary key auto_increment,
+      ID int primary key auto_increment,
       userID bigint unsigned,
       birthday date,
       guild bigint unsigned,
