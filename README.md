@@ -3,7 +3,7 @@
 Code for setting up MySQL database
 ~~~~sql
 
-  # Create fatabase
+  # Create database
   Create database Birthday_DiscordBot;
   use Birthday_DiscordBot;
 
