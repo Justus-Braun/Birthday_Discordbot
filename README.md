@@ -1,20 +1,20 @@
 # Birthday_Discordbot
 
-Code for setting up MySQL Database
+Code for setting up MySQL database
 ~~~~sql
 
-  #Create Database
+  # Create fatabase
   Create database Birthday_DiscordBot;
   use Birthday_DiscordBot;
 
-  #Create Table Guilds
+  # Create table guilds
   CREATE TABLE guilds (
       guildID BIGINT UNSIGNED PRIMARY KEY,
       channelID BIGINT UNSIGNED,
       prefix VARCHAR(5) default "!"
   );
 
-  #Create Table user
+  # Create table user
   create table user(
       ID int primary key auto_increment,
       userID bigint unsigned,
